@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import math
 import numpy as np
+from aerofoil_tools import *
 
 def spine(x1 ,y1 ,x2 ,y2):
     # y=mx+c
@@ -10,69 +11,44 @@ def spine(x1 ,y1 ,x2 ,y2):
     return m ,c
 
 
-# Central AOA  0
-# Tip AOA  -4
+class Wing():
+    def __init__(self,c_chord,t_chord,hspan,t_chord_y,sections):
+        self.c_chord=c_chord
+        self.t_chord=t_chord
+        self.hspan=hspan
+        self.t_chord_y=t_chord_y
+        self.nsecs=1
+        self.sections=sections
+        self.m_le ,self.c_le = spine(0 ,0 ,self.hspan ,-self.t_chord_y)
+        self.m_te, self.c_te = spine(0, -self.c_chord, self.hspan, (-self.t_chord_y -self.t_chord))
+        self.taper_ratio = self.t_chord / self.c_chord
+        self.area = (self.hspan * self.c_chord * (1 + self.taper_ratio)) / 1000000
+        self.le_sweep = math.atan(self.t_chord_y / self.hspan)
+        self.te_sweep = math.atan(((self.t_chord_y + self.t_chord) - self.c_chord) / self.hspan)
+        self.wing_sweep = math.atan((self.t_chord_y + (0.25 * self.t_chord) - (self.c_chord * 0.25)) / self.hspan)
 
-# Area 1      m2
-# Area 2      m2
-# Area 3      m2
-#
-# Section 1 Span   400
-# Section 2 Span   750
-# Section 1 AOA    0
-# Section 2 AOA    -2.3
-# Flap IB  100
-# Flap OB  400
-# Flap IB Chord    0.8
-# Flap OB Chord    0.8
-# Elevon IB Chord
-# Elevon OB Chord
-# Spar %Chord  0.3
+    def __str__(self):
+        print(f"Wing Area = {self.area}")
+        print(f"Taper Ratio = {self.taper_ratio}")
+        print(f"Wing Sweep = {math.degrees(self.wing_sweep):.2f}")
+        return "Done"
+
+
+class Section():
+    def __init__(self,ib_section,ob_section,ib_span_fraction,ob_span_fraction):
+        self.ib_section=ib_section
+        self.ob_section=ob_section
+        self.ib_span_fraction=ib_span_fraction
+        self.ob_span_fraction=ob_span_fraction
+
 
 print("Wing Designer")
-# Input params
-# ToDo make this a json read/write file
-c_chord = 400
-t_chord = 164
-hspan = 1000
-t_chord_y = 500
-
-#Segments
-##IB_Section
-#OB_Section
-#IB_Span_fraction
-#OB_Span_fraction
-
-# Stats
-# For linear properties
-# ToDo consider integration functions to get Area and MAC
-# https://www.sciencedirect.com/topics/engineering/mean-aerodynamic-chord
-taper_ratio =t_chord /c_chord
-area= (hspan *c_chord *( 1 +taper_ratio) ) /1000000
-le_sweep =math.atan(t_chord_y /hspan)
-te_sweep =math.atan(((t_chord_y +t_chord ) -c_chord ) /hspan)
-wing_sweep =math.atan((t_chord_y +(0.25 *t_chord ) -(c_chord *0.25) ) /hspan)
-#
-
-
-# Output properties
-print(f"taper ration = {taper_ratio:.2f}")
-print(f"area = {area:.2f} m2")
-print(f"le_sweep = {math.degrees(le_sweep):.2f} deg")
-print(f"te_sweep = {math.degrees(te_sweep):.2f} deg")
-print(f"wing_sweep = {math.degrees(wing_sweep):.2f} deg")
-
-
-# Create Profiles
-# Make LE Profile
-m_le ,c_le = spine(0 ,0 ,1000 ,-500)
-
-# Make TE profile
-m_te ,c_te = spine(0 ,-400 ,1000 ,(-500 -164))
-
-# Make Spar Profile
-
-
+a1 = Aerofoil('PW51_1', 'PW51.dat', 1, 0.05, 201)
+a2 = Aerofoil('HT12_1', 'ht12.dat', 1, 0.05, 201)
+sections = []
+sections.append(Section(a1,a2,0,1))
+wing = Wing(400,164,1000,500,sections)
+print(wing)
 
 # Make Chord Stations
 #nj =30
@@ -111,5 +87,7 @@ m_te ,c_te = spine(0 ,-400 ,1000 ,(-500 -164))
 # plt.axis('equal')
 # plt.grid()
 # plt.show()
+
+
 
 
