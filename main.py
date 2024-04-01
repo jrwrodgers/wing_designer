@@ -33,6 +33,68 @@ class Wing():
         print(f"Wing Sweep = {math.degrees(self.wing_sweep):.2f}")
         return "Done"
 
+    def plot_wing(self):
+
+        for s in range(len(self.sections)):
+            print (f"Plotting section {s}")
+            nj=20
+            y_stations = [self.sections[s].ib_span_fraction*self.hspan + (j / (nj - 1)) * self.sections[s].ob_span_fraction*self.hspan for j in range(nj)]
+            for j in range(len(y_stations)):
+                #print(j/(nj-1),y_stations[j])
+                c1_frac=j/(nj-1)
+                c2_frac=1-(c1_frac)
+                new_chord = np.add(self.sections[s].ib_section.points * c1_frac,self.sections[s].ob_section.points * c2_frac )
+                #print(new_chord)
+                le_offset=self.m_le*(c1_frac*self.hspan) + self.c_le
+                te_offset=self.m_te*(c1_frac*self.hspan) + self.c_te
+                scale=le_offset-te_offset
+                print(le_offset)
+                new_chord=new_chord*scale
+                new_chord[:,0]=new_chord[:,0]+le_offset
+
+                plt.plot(new_chord[:, 0],new_chord[:, 1], 'g-')
+                #plt.plot(le_offset, y_stations[j], te_offset,y_stations[j], 'g-')
+
+
+        # nj =30
+        # y_stations =[( j /(nj -1) ) *hspan for j in range(nj)]
+        # # print(j_stations)
+        # x_stations =[]
+        #
+        # for j in y_stations:
+        #     le_x =m_le *j + c_le # or return from a spine function
+        #     te_x =m_te *j + c_te # or return from a spine function
+        #     chord =le_x -te_x
+        #     x_stations.append([le_x -(chord * i /(ni -1)) for i in range(ni)])
+        #
+        # # print(x_stations)
+        #
+        # for j in range(nj -1):
+        #     for i in range(ni -1):
+        #         p1 = [y_stations[j] ,x_stations[j][i]]
+        #         p2 = [y_stations[j] ,x_stations[j][ i +1]]
+        #         p3 = [y_stations[j + 1], x_stations[j + 1][i + 1]]
+        #         p4 = [y_stations[ j +1] ,x_stations[ j +1][i]]
+        #         plt.plot([p1[0] ,p2[0]] ,[p1[1] ,p2[1]] ,'b', linestyle="-")
+        #         plt.plot([p4[0], p1[0]], [p4[1], p1[1]], 'b', linestyle="-")
+        #         # reflect
+        #         plt.plot([-p1[0] ,-p2[0]] ,[p1[1] ,p2[1]] ,'b', linestyle="-")
+        #         plt.plot([-p4[0], -p1[0]], [p4[1], p1[1]], 'b', linestyle="-")
+        #         if i== ni - 2:
+        #             plt.plot([p2[0], p3[0]], [p2[1], p3[1]], 'b', linestyle="-")
+        #             # reflect
+        #             plt.plot([-p2[0], -p3[0]], [p2[1], p3[1]], 'b', linestyle="-")
+        #         if j == nj - 2:
+        #             plt.plot([p3[0], p4[0]], [p3[1], p4[1]], 'b', linestyle="-")
+        #             # reflect
+        #             plt.plot([-p3[0], -p4[0]], [p3[1], p4[1]], 'b', linestyle="-")
+
+        #ax = fig.add_subplot(111, projection='3d')
+
+        plt.axis('equal')
+        plt.grid()
+        plt.show()
+
 
 class Section():
     def __init__(self,ib_section,ob_section,ib_span_fraction,ob_span_fraction):
@@ -43,51 +105,13 @@ class Section():
 
 
 print("Wing Designer")
-a1 = Aerofoil('PW51_1', 'PW51.dat', 1, 0.05, 201)
-a2 = Aerofoil('HT12_1', 'ht12.dat', 1, 0.05, 201)
+a1 = Aerofoil('PW51_1', 'PW51.dat', 1, 0.05, 51)
+a2 = Aerofoil('HT12_1', 'ht12.dat', 1, 0.05, 51)
 sections = []
 sections.append(Section(a1,a2,0,1))
 wing = Wing(400,164,1000,500,sections)
-print(wing)
+wing.plot_wing()
 
 # Make Chord Stations
-#nj =30
-#ni =10
-# y_stations =[( j /(nj -1) ) *hspan for j in range(nj)]
-# # print(j_stations)
-# x_stations =[]
-#
-# for j in y_stations:
-#     le_x =m_le *j + c_le # or return from a spine function
-#     te_x =m_te *j + c_te # or return from a spine function
-#     chord =le_x -te_x
-#     x_stations.append([le_x -(chord * i /(ni -1)) for i in range(ni)])
-#
-# # print(x_stations)
-#
-# for j in range(nj -1):
-#     for i in range(ni -1):
-#         p1 = [y_stations[j] ,x_stations[j][i]]
-#         p2 = [y_stations[j] ,x_stations[j][ i +1]]
-#         p3 = [y_stations[j + 1], x_stations[j + 1][i + 1]]
-#         p4 = [y_stations[ j +1] ,x_stations[ j +1][i]]
-#         plt.plot([p1[0] ,p2[0]] ,[p1[1] ,p2[1]] ,'b', linestyle="-")
-#         plt.plot([p4[0], p1[0]], [p4[1], p1[1]], 'b', linestyle="-")
-#         # reflect
-#         plt.plot([-p1[0] ,-p2[0]] ,[p1[1] ,p2[1]] ,'b', linestyle="-")
-#         plt.plot([-p4[0], -p1[0]], [p4[1], p1[1]], 'b', linestyle="-")
-#         if i== ni - 2:
-#             plt.plot([p2[0], p3[0]], [p2[1], p3[1]], 'b', linestyle="-")
-#             # reflect
-#             plt.plot([-p2[0], -p3[0]], [p2[1], p3[1]], 'b', linestyle="-")
-#         if j == nj - 2:
-#             plt.plot([p3[0], p4[0]], [p3[1], p4[1]], 'b', linestyle="-")
-#             # reflect
-#             plt.plot([-p3[0], -p4[0]], [p3[1], p4[1]], 'b', linestyle="-")
-# plt.axis('equal')
-# plt.grid()
-# plt.show()
-
-
 
 
