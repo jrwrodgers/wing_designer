@@ -8,11 +8,12 @@ import math as m
 
 
 class Aerofoil:
-    def __init__(self, name, filename, chord, te_thickness, npoints=201):
+    def __init__(self, name, filename, chord, te_thickness, npoints):
         self.name = name
         self.npoints = npoints
         self.raw_data = self.read_in_aerofoil(filename)
         self.raw_data=self.raw_data*(chord/self.get_chord_length(self.raw_data))
+        self.te_thickness = te_thickness
         self.bspline = self.get_bspline_knots(self.raw_data)
         # linear blend TE pressure side points to give required TE thickness
         self.centre_s = self.get_le_s()
