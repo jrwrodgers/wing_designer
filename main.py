@@ -53,21 +53,22 @@ class Wing():
 
 
     def plot_wing(self):
-
+        cmap = plt.get_cmap('rainbow')
+        colors = cmap(np.linspace(0, 1, len(self.sections)))
+        #print(colors)
         for s in range(len(self.sections)):
             print (f"Plotting section {s}")
             nj=20
             y_stations = [self.sections[s].ib_span_fraction*self.hspan + (j / (nj - 1)) * self.sections[s].ob_span_fraction*self.hspan for j in range(nj)]
             for j in range(len(y_stations)):
-                c2_frac=j/(nj-1)
+                c2_frac=self.sections[s].ib_span_fraction+(j/(nj-1)*(self.sections[s].ob_span_fraction-self.sections[s].ib_span_fraction))
                 c1_frac=1-(c2_frac)
                 b_chord = np.add(self.sections[s].ib_section.points * c1_frac,self.sections[s].ob_section.points * c2_frac )
                 #rotate
                 angle=get_bspline(c2_frac, self.twist)
-                print(angle[:,1])
-                br_chord=rotate_points(b_chord,angle[:,1],[0,0])
+                #print(angle[:,1])
+                br_chord=rotate_points(b_chord,float(angle[:,1]),[0,0])
                 #dihedral
-
 
                 le_offset=((c2_frac*self.hspan -self.c_le )/self.m_le)
                 te_offset=((c2_frac*self.hspan -self.c_te )/self.m_te)
@@ -77,9 +78,9 @@ class Wing():
 
                 #print j,c2_frac,angle)
                 #dihedral
-                plt.plot(br_chord[:, 0],br_chord[:, 1], '-')
-                #plt.plot(br_chord[:, 0], br_chord[:, 1], 'r-')
-                #plt.plot(le_offset, y_stations[j], te_offset,y_stations[j], 'g-')
+
+                plt.plot(br_chord[:, 0],br_chord[:, 1],color=colors[s])
+
 
         # nj =30
         # y_stations =[( j /(nj -1) ) *hspan for j in range(nj)]
@@ -133,6 +134,7 @@ def main():
     print("Wing Designer")
     a1 = Aerofoil('PW51_1', 'PW51.dat', 1, 0.05, 51)
     a2 = Aerofoil('HT12_1', 'ht12.dat', 1, 0.05, 51)
+    a1.show_aerofoil()
     sections = []
     sections.append(Section(a1, a1, 0, 0.4))
     sections.append(Section(a1, a2,0.4,0.75))
