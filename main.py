@@ -77,7 +77,7 @@ class Wing():
 
                 #print j,c2_frac,angle)
                 #dihedral
-                plt.plot(br_chord[:, 0],br_chord[:, 1], 'g-')
+                plt.plot(br_chord[:, 0],br_chord[:, 1], '-')
                 #plt.plot(br_chord[:, 0], br_chord[:, 1], 'r-')
                 #plt.plot(le_offset, y_stations[j], te_offset,y_stations[j], 'g-')
 
@@ -134,7 +134,9 @@ def main():
     a1 = Aerofoil('PW51_1', 'PW51.dat', 1, 0.05, 51)
     a2 = Aerofoil('HT12_1', 'ht12.dat', 1, 0.05, 51)
     sections = []
-    sections.append(Section(a1,a2,0,1))
+    sections.append(Section(a1, a1, 0, 0.4))
+    sections.append(Section(a1, a2,0.4,0.75))
+    sections.append(Section(a2, a2, 0.75, 1.0))
     twist=[[0,0],[0.2,0],[0.8,10],[1,10]]
     dihedral = 0
     wing = Wing(400,164,1000,500,sections,twist,dihedral)
